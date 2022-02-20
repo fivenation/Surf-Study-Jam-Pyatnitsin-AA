@@ -19,7 +19,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   update() {
     setState(() {
-
+      FocusManager.instance.primaryFocus?.unfocus();
     });
   }
 
@@ -27,6 +27,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     TextEditingController _messageController = TextEditingController();
     TextEditingController _nicknameController = TextEditingController();
+    ScrollController _scrollController = ScrollController();
 
     return Scaffold(
       appBar: AppBar(
@@ -51,10 +52,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 var messagesList = snapshot.data!;
                 return Expanded(
                   child: ListView.builder(
+                    controller: _scrollController,
                       itemCount: messagesList.length,
                       shrinkWrap: true,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       itemBuilder: (context, index) {
+                        _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(microseconds: 300), curve: Curves.easeOut);
                         return Container(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                           child: Align(
@@ -108,6 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (_messageController.text.isNotEmpty && _nicknameController.text.isNotEmpty) {
                         print('MESSAGE::: ${_nicknameController.text} ${_messageController.text}');
                         widget.chatRepository.sendMessage(_nicknameController.text, _messageController.text);
+                        update();
                       }
                     },
                     child: const Icon(Icons.send, size: 24,),
