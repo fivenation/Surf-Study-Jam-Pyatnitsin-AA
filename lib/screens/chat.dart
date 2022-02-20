@@ -61,22 +61,23 @@ class _ChatScreenState extends State<ChatScreen> {
                       shrinkWrap: true,
                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                       itemBuilder: (context, index) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.blue,
-                                child: Text(messagesList[index].author.name[0].toUpperCase()),
-                                maxRadius: 16,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                              child: Align(
-                                alignment: messagesList[index].author.name == _nickname ? Alignment.topRight : Alignment.topLeft,
-                                child: Container(
+                        return Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                          child: Align(
+                            //alignment: messagesList[index].author.name == _nickname ? Alignment.topRight : Alignment.topLeft,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: messagesList[index].author.name == _nickname ? MainAxisAlignment.end : MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                                  child: !(messagesList[index].author.name == _nickname) ? CircleAvatar(
+                                    backgroundColor: Colors.blue,
+                                    child: Text(messagesList[index].author.name[0].toUpperCase()),
+                                    maxRadius: 16,
+                                  ) : null,
+                                ),
+                                Container(
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       color: messagesList[index].author.name == _nickname ? Colors.lightBlue : Colors.grey.shade300
@@ -86,15 +87,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(messagesList[index].author.name.toString(), style: const TextStyle(fontWeight: FontWeight.bold),),
-                                      Text(messagesList[index].createdDateTime.toString(), style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 12),),
+                                      Text(messagesList[index].createdDateTime.toString(), overflow: TextOverflow.clip, softWrap: true, style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 12),),
                                       const SizedBox(height: 4,),
                                       Text(messagesList[index].message.toString()),
                                     ],
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
+                          ),
                         );
                       }
                   ),
@@ -125,8 +126,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   FloatingActionButton(
                     onPressed: () {
                       if (_messageController.text.isNotEmpty && _nicknameController.text.isNotEmpty) {
-                        const Duration(microseconds: 1000);
-                        print('MESSAGE::: ${_nicknameController.text} ${_messageController.text}');
                         widget.chatRepository.sendMessage(_nicknameController.text, _messageController.text);
                         _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(microseconds: 300), curve: Curves.easeOut);
                         _nickname = _nicknameController.text;
