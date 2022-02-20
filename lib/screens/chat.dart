@@ -17,6 +17,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  String _nickname = '';
+
   update() {
     setState(() {
       FocusManager.instance.primaryFocus?.unfocus();
@@ -29,6 +31,8 @@ class _ChatScreenState extends State<ChatScreen> {
     TextEditingController _nicknameController = TextEditingController();
     ScrollController _scrollController = ScrollController();
 
+    _nicknameController.text = _nickname;
+
     return Scaffold(
       appBar: AppBar(
         title: TextFormField(
@@ -40,7 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
         actions: [
-          IconButton(onPressed: update, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: (){_scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(microseconds: 300), curve: Curves.easeOut); update();}, icon: const Icon(Icons.refresh))
         ],
       ),
       body: Column(
@@ -48,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
           StreamBuilder(
               stream: widget.chatRepository.messages.asStream(),
               builder: (BuildContext context, AsyncSnapshot<List<ChatMessageDto>> snapshot) {
-                if(!snapshot.hasData) return Text('No Data');
+                if(!snapshot.hasData) return Text(snapshot.error.toString());
                 var messagesList = snapshot.data!;
                 return Expanded(
                   child: ListView.builder(
@@ -57,15 +61,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       shrinkWrap: true,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       itemBuilder: (context, index) {
-                        _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(microseconds: 300), curve: Curves.easeOut);
                         return Container(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                           child: Align(
-                            alignment: Alignment.topLeft,
+                            alignment: messagesList[index].author.name == _nickname ? Alignment.topRight : Alignment.topLeft,
                             child: Container(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color: Colors.grey.shade300
+                                  color: messagesList[index].author.name == _nickname ? Colors.lightBlue : Colors.grey.shade300
                               ),
                               padding: const EdgeInsets.all(8),
                               child: Column(
@@ -111,6 +114,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (_messageController.text.isNotEmpty && _nicknameController.text.isNotEmpty) {
                         print('MESSAGE::: ${_nicknameController.text} ${_messageController.text}');
                         widget.chatRepository.sendMessage(_nicknameController.text, _messageController.text);
+                        _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(microseconds: 300), curve: Curves.easeOut);
+                        _nickname = _nicknameController.text;
                         update();
                       }
                     },

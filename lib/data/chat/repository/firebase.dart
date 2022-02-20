@@ -20,6 +20,7 @@ class ChatRepositoryFirebase implements ChatRepository {
     final result = await _firebaseClient
         .collection(_messagesCollectionKey)
         .orderBy('created')
+        .limitToLast(_messagesLimit)
         .get();
 
     return result.docs.map(_parseFirebaseDataToLocal).toList();
